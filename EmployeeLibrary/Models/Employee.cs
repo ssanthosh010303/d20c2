@@ -1,57 +1,40 @@
 /*
  * Author: Sakthi Santhosh
- * Created on: 19/04/2024
+ * Created on: 09/05/2024
  */
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace EmployeeLibrary.Models;
 
 public class Employee
 {
-    private int _id;
-    private string _name;
-    private string _department;
-    private decimal _salary;
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
 
-    public int Id
-    {
-        get { return _id; }
-        set
-        {
-            if (value <= 0)
-                throw new ArgumentException("Employee ID must be greater than zero.");
-            _id = value;
-        }
-    }
+    [Required(ErrorMessage = "Employee name cannot be null or whitespace.")]
+    public string Name { get; set; }
 
-    public string Name
-    {
-        get { return _name; }
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Employee name cannot be null or whitespace.");
-            _name = value.Trim();
-        }
-    }
+    [Required(ErrorMessage = "Department cannot be null or whitespace.")]
+    public string Department { get; set; }
 
-    public string Department
-    {
-        get { return _department; }
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Department cannot be null or whitespace.");
-            _department = value.Trim();
-        }
-    }
+    [Range(0, double.MaxValue, ErrorMessage = "Salary must be a non-negative value.")]
+    public decimal Salary { get; set; }
 
-    public decimal Salary
+    public override string ToString()
     {
-        get { return _salary; }
-        set
-        {
-            if (value < 0)
-                throw new ArgumentException("Salary must be a non-negative value.");
-            _salary = value;
-        }
+        string data = "";
+
+        data += "+----------------------------------------+";
+        data += "| Employee                               |";
+        data += "+----------------------------------------+";
+        data += $"  ID:         ${Id}                     ";
+        data += $"  Name:       ${Name}                   ";
+        data += $"  Department: ${Department}             ";
+        data += $"  Salary:     ${Salary}                 ";
+        data += "+----------------------------------------+";
+
+        return data;
     }
 }

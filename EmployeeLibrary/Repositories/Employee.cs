@@ -4,6 +4,8 @@
  */
 using EmployeeLibrary.Models;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace EmployeeLibrary.Repository;
 
 public interface IEmployeeRepository
@@ -17,34 +19,34 @@ public interface IEmployeeRepository
 
 public class EmployeeRepository : IEmployeeRepository
 {
-    private readonly List<Employee> _employees;
+    private readonly DbContext _context;
 
-    public EmployeeRepository()
+    public EmployeeRepository(DbContext context)
     {
-        _employees = [];
+        _context = context;
     }
 
     public Employee GetById(int id)
     {
-        var employee = _employees.FirstOrDefault(e => e.Id == id) ?? throw new NullReferenceException("No employee with that ID found.");
-
-        return employee;
+        return _context.Employees.FirstOrDefault(e => e.Id == id) ?? throw new NullReferenceException("No employee with that ID found.");
     }
 
     public IEnumerable<Employee> GetAll()
     {
-        return _employees;
+        return _context.Employees.ToList();
     }
 
     public void Add(string name, string department, decimal salary)
     {
-        _employees.Add(new Employee
+        var newEmployee = new Employee
         {
-            Id = _employees.Count != 0 ? _employees.Max(e => e.Id) + 1 : 1,
             Name = name,
             Department = department,
             Salary = salary
-        });
+        };
+
+        _context.Employees.Add(newEmployee);
+        _context.SaveChanges();
     }
 
     public void Update(int id, string name, string department, decimal salary)
@@ -56,6 +58,8 @@ public class EmployeeRepository : IEmployeeRepository
             existingEmployee.Name = name;
             existingEmployee.Department = department;
             existingEmployee.Salary = salary;
+
+            _context.SaveChanges();
         }
     }
 
@@ -64,6 +68,9 @@ public class EmployeeRepository : IEmployeeRepository
         var employeeToDelete = GetById(id);
 
         if (employeeToDelete != null)
-            _employees.Remove(employeeToDelete);
+        {
+            _context.Employees.Remove(employeeToDelete);
+            _context.SaveChanges();
+        }
     }
 }
